@@ -1,6 +1,10 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: JDBC:postgresql://localhost:5432/lab_db
+    url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
-    password: 20050823
+    password: 123456
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
