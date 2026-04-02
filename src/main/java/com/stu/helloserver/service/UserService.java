@@ -5,5 +5,4 @@ import com.stu.helloserver.model.dto.UserDTO;
 public interface UserService {
     Result<String> register(UserDTO userDTO);
     Result<String> login(UserDTO userDTO);
-
 }
