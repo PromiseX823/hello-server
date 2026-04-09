@@ -4,6 +4,10 @@ spring:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
     password: 123456
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:init_data.sql
 
 mybatis-plus:
   configuration:

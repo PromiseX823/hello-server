@@ -29,4 +29,13 @@ public class UserController {
 
         return userService.getUserById(id);
     }
+
+    @GetMapping("/page")
+    public Result<Object> getUserPage(
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "5") int pageSize
+    ){
+        return userService.getUserPage(pageNum,pageSize);
+    }
+
 }

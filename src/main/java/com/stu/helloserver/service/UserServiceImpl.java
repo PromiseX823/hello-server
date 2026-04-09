@@ -9,6 +9,7 @@ import com.stu.helloserver.model.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.stu.helloserver.mapper.UserMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -61,6 +62,14 @@ public class UserServiceImpl implements UserService {
         }
         return Result.success("查询成功，用户：" + user.getUsername());
     }
+
+    @Override
+    public Result<Object> getUserPage(int pageNum,int pageSize){
+        Page<User> pageParam = new Page<>(pageNum,pageSize);
+        Page<User> resultPage = userMapper.selectPage(pageParam,null);
+        return Result.success(resultPage);
+    }
+
 
 
 }
