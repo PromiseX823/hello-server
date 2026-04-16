@@ -3,11 +3,17 @@ spring:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
-    password: 123456
+    password: 20050823
   sql:
     init:
       mode: always
       schema-locations: classpath:init_data.sql
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      database: 0
+
 
 mybatis-plus:
   configuration:

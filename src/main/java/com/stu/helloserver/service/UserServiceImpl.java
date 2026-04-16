@@ -1,25 +1,36 @@
 package com.stu.helloserver.service;
 
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.stu.helloserver.common.Result;
 import com.stu.helloserver.common.ResultCode;
-import com.stu.helloserver.model.entity.User;
+import com.stu.helloserver.entity.UserInfo;
+import com.stu.helloserver.mapper.UserInfoMapper;
 import com.stu.helloserver.model.dto.UserDTO;
-//import com.sun.org.apache.bcel.internal.generic.RETURN;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.stu.helloserver.model.entity.User;
 import com.stu.helloserver.mapper.UserMapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.stu.helloserver.vo.UserDetailVO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private UserInfoMapper userInfoMapper;
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
+    private static final String CACHE_KEY_PREFIX = "user:detail:";
 
     @Override
     public Result<String> register(UserDTO userDTO) {
@@ -70,6 +81,45 @@ public class UserServiceImpl implements UserService {
         return Result.success(resultPage);
     }
 
+    @Override
+    public Result<UserDetailVO> getUserDetail(Long userId) {
+        String key = CACHE_KEY_PREFIX + userId;
+        String json = redisTemplate.opsForValue().get(key);
+        if (json != null && !json.isBlank()){
+            try {
+                UserDetailVO cacheVO = JSONUtil.toBean(json, UserDetailVO.class);
+                return Result.success(cacheVO);
+            } catch (Exception e){
+                redisTemplate.delete(key);
+            }
+        }
 
+        UserDetailVO detail = userInfoMapper.getUserDetail(userId);
+        if (detail == null){
+            return Result.error(ResultCode.USER_NOT_EXIST);
+        }
 
+        redisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(detail), 10, TimeUnit.MINUTES);
+        return Result.success(detail);
+    }
+
+    @Override
+    @Transactional
+    public Result<String> updateUserInfo(UserInfo userInfo) {
+        if (userInfo == null || userInfo.getUserId() == null){
+            return Result.error(ResultCode.ERROR);
+        }
+        userInfoMapper.updateById(userInfo);
+        redisTemplate.delete(CACHE_KEY_PREFIX + userInfo.getUserId());
+        return Result.success("更新成功");
+    }
+
+    @Override
+    @Transactional
+    public Result<String> deleteUser(Long userId) {
+        userMapper.deleteById(userId);
+        userInfoMapper.deleteById(userId);
+        redisTemplate.delete(CACHE_KEY_PREFIX + userId);
+        return Result.success("删除成功");
+    }
 }
