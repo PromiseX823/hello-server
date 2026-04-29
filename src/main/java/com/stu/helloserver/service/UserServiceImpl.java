@@ -1,5 +1,5 @@
 package com.stu.helloserver.service;
-
+import com.stu.helloserver.security.JwtUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -29,6 +29,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     private static final String CACHE_KEY_PREFIX = "user:detail:";
 
@@ -62,7 +65,9 @@ public class UserServiceImpl implements UserService {
         if(!dbUser.getPassword().equals(userDTO.getPassword())){
             return Result.error(ResultCode.PASSWORD_ERROR);
         }
-        return  Result.success("登录成功");
+        String jwt = jwtUtil.generateToken(userDTO.getUsername());
+        return Result.success(jwt);
+
     }
 
     @Override
