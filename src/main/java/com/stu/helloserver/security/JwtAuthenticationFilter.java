@@ -1,5 +1,6 @@
 package com.stu.helloserver.security;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.stu.helloserver.entity.User;
 import com.stu.helloserver.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
 
-        // 你原本的代码，完全保留
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -48,29 +48,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // ===================== 仅在这里加最小化修复（只改这里） =====================
-        // 1. 解决类名冲突，不查询数据库、不调用额外方法
-        // 2. 直接注入认证信息，修复403
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(User::getUsername, username);
+            User dbUser = userMapper.selectOne(queryWrapper);
 
-            // 全类名调用，不修改导入、不改动其他文件
-            UserDetails userDetails = org.springframework.security.core.userdetails.User
-                    .withUsername(username)
-                    .password("")
-                    .authorities(Collections.emptyList())
-                    .build();
+            // 增加非空判断！关键修复
+            if (dbUser != null) {
+                UserDetails userDetails = org.springframework.security.core.userdetails.User
+                        .withUsername(username)
+                        .password("")
+                        .authorities(Collections.emptyList())
+                        .build();
 
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    null,
-                    userDetails.getAuthorities()
-            );
-            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-            // 核心：告诉Spring已登录
-            SecurityContextHolder.getContext().setAuthentication(authToken);
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
         }
-        // ==========================================================================
 
         filterChain.doFilter(request, response);
     }

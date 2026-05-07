@@ -8,7 +8,7 @@ import com.stu.helloserver.common.ResultCode;
 import com.stu.helloserver.entity.UserInfo;
 import com.stu.helloserver.mapper.UserInfoMapper;
 import com.stu.helloserver.model.dto.UserDTO;
-import com.stu.helloserver.model.entity.User;
+import com.stu.helloserver.entity.User;
 import com.stu.helloserver.mapper.UserMapper;
 import com.stu.helloserver.vo.UserDetailVO;
 import org.springframework.beans.factory.annotation.Autowired;
