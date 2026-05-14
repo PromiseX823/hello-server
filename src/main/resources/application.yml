@@ -25,3 +25,7 @@ security:
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+chat:
+  history:
+    max-records: 3

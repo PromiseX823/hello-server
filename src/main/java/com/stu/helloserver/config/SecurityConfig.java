@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST,"/api/users/register").permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/users/login").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/api/chat").permitAll()
+                        //.requestMatchers(HttpMethod.POST,"/api/chat").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)

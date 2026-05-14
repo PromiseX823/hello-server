@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatResponseVO {
+    private String sessionId;
     private String questions;
     private String answer;
 }
