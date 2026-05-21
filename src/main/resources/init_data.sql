@@ -37,3 +37,13 @@ SELECT 'user_info 数据量：' || COUNT(*) AS check_result FROM user_info;
 
 SELECT * FROM sys_user ORDER BY id LIMIT 10;
 SELECT * FROM user_info ORDER BY user_id LIMIT 10;
+
+
+CREATE TABLE document_chunk (
+                                id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                document_id BIGINT NOT NULL,
+                                chunk_index INT NOT NULL,
+                                chunk_content TEXT NOT NULL,
+                                create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                INDEX idx_document_id (document_id)
+);
